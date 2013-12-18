@@ -10,6 +10,7 @@ class LazyViews(object):
     """
     import_prefix = None
     instance = None
+    _lazyviews = {}
 
     def __init__(self, instance=None, import_prefix=None):
         """
@@ -88,7 +89,13 @@ class LazyViews(object):
         """
         if callable(mixed) or not isinstance(mixed, basestring):
             return mixed
-        return LazyView(self.build_import_name(mixed))
+        import_name = self.build_import_name(mixed)
+        if import_name not in self._lazyviews:
+            lv = LazyView(import_name)
+            self._lazyviews[import_name] = lv
+            return lv
+        else:
+            return self._lazyviews[import_name]
 
     def init_app(self, app, import_prefix=None):
         """
